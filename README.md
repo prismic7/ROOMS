@@ -1,4 +1,4 @@
-# NEU Laboratory Usage Log
+# NEU ROOMS (Room Organization & Operation Management System)
 
 Mobile-responsive QR check-in system for NEU faculty.
 
