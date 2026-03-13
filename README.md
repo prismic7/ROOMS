@@ -1,4 +1,4 @@
-# NEU ROOMS [Room ORganization & Operations Management System]
+# NEU ROOMS [Room Organization & Operations Management System]
 
 A mobile-responsive QR check-in and attendance system for New Era University faculty, replacing traditional paper logs with a digital workflow using Google authentication and real-time room tracking.
 
