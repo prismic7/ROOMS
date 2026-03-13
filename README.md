@@ -6,7 +6,7 @@ A mobile-responsive QR check-in and attendance system for New Era University fac
 
 ## [Live Demo]
 
-> https://midterm-yr3sm2.web.app
+> https://midterm-yr3sm2.web.app (Reach out for whitelist.)
 
 ---
 
