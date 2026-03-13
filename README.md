@@ -74,7 +74,7 @@ firebase deploy --only hosting
 ## [Project Structure]
 
 ```plaintext
-neu-lab-log/
+LOG/
 ├── index.html              ← Login page (Root)
 ├── pages/
 │   ├── dashboard.html      ← Faculty mobile dashboard
