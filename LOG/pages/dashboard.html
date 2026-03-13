@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#1a56db">
+
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#1a56db">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ROOMS — Faculty Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg: #f5f6f8;
+      --surface: #ffffff;
+      --border: #e4e7ec;
+      --border-2: #f0f2f5;
+      --text-1: #111827;
+      --text-2: #374151;
+      --text-3: #6b7280;
+      --text-4: #9ca3af;
+      --accent: #2563eb;
+      --accent-lt: #eff4ff;
+      --accent-dk: #1d4ed8;
+      --green: #16a34a;
+      --green-lt: #f0fdf4;
+      --red: #dc2626;
+      --red-lt: #fef2f2;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-1);
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      overscroll-behavior: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    #header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    #page-area {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      background: var(--bg);
+    }
+
+    .page {
+      display: none;
+      padding: 16px 16px 28px;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    #bottom-nav {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-shrink: 0;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .bnav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 10px 0 8px;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-4);
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: .01em;
+      transition: color .12s;
+    }
+
+    .bnav-btn.active {
+      color: var(--accent);
+    }
+
+    .bnav-btn.active svg {
+      stroke: var(--accent);
+    }
+
+    .bnav-btn svg {
+      stroke: var(--text-4);
+      transition: stroke .12s;
+    }
+
+    #bn-scanner {
+      position: relative;
+      flex: 1.5;
+    }
+
+    #bn-scanner .scan-fab {
+      width: 60px;
+      height: 60px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: -26px;
+      box-shadow: 0 4px 18px rgba(37, 99, 235, .4);
+      transition: background .12s, transform .1s, box-shadow .12s;
+    }
+
+    #bn-scanner:active .scan-fab {
+      transform: scale(.93);
+      background: var(--accent-dk);
+    }
+
+    #bn-scanner.active .scan-fab {
+      background: var(--accent-dk);
+      box-shadow: 0 4px 22px rgba(37, 99, 235, .55);
+    }
+
+    #bn-scanner svg {
+      stroke: #fff !important;
+    }
+
+    #bn-scanner span {
+      color: var(--accent);
+      font-weight: 600;
+      margin-top: 2px;
+      font-size: 10px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .session-card {
+      background: var(--accent-lt);
+      border: 1px solid #c3d5fd;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 13px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: background .12s;
+      width: 100%;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-dk);
+    }
+
+    .btn-primary:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    .btn-danger {
+      background: var(--red-lt);
+      border: 1px solid #fecaca;
+      color: var(--red);
+      border-radius: 10px;
+      padding: 13px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      transition: background .12s;
+      width: 100%;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: #fee2e2;
+    }
+
+    .btn-danger:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    .btn-ghost {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      color: var(--text-2);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-size: 12.5px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: background .12s;
+    }
+
+    .btn-ghost:active {
+      background: var(--bg);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge-green {
+      background: var(--green-lt);
+      color: var(--green);
+      border: 1px solid #bbf7d0;
+    }
+
+    .badge-gray {
+      background: #f3f4f6;
+      color: var(--text-3);
+      border: 1px solid #e5e7eb;
+    }
+
+    .chip {
+      padding: 5px 12px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 500;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      color: var(--text-3);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+      transition: all .12s;
+    }
+
+    .chip.active {
+      background: var(--accent-lt);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .log-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-2);
+    }
+
+    .log-row:last-child {
+      border-bottom: none;
+    }
+
+    #qr-reader {
+      width: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      background: #22c55e;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+      animation: livepulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes livepulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: .35;
+        transform: scale(.65)
+      }
+    }
+
+    #toast {
+      position: fixed;
+      bottom: calc(62px + env(safe-area-inset-bottom) + 10px);
+      left: 50%;
+      transform: translateX(-50%) translateY(0);
+      background: var(--text-1);
+      color: #f9fafb;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 13px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, .2);
+      opacity: 0;
+      pointer-events: none;
+      transition: all .22s;
+      white-space: nowrap;
+      z-index: 9999;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-8px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+
+    <header id="header">
+      <div class="flex items-center gap-2.5">
+        <img src="../assets/neu.png" alt="NEU" class="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+        <div>
+          <p style="font-size:14px;font-weight:700;color:var(--text-1);line-height:1.15;">ROOMS</p>
+          <p
+            style="font-size:9px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;color:var(--accent);line-height:1.2;">
+            Faculty Portal</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <img id="user-photo" class="w-8 h-8 rounded-full border border-gray-100 hidden object-cover" alt="" />
+        <div id="user-avatar"
+          style="width:32px;height:32px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">
+          P</div>
+      </div>
+    </header>
+
+    <!-- FORCE CHECKOUT NOTIFICATION BANNER -->
+    <div id="notif-banner"
+      style="display:none;background:#fef2f2;border-bottom:1px solid #fecaca;padding:12px 16px;flex-shrink:0;z-index:20;animation:slideDown .25s ease;">
+      <div style="display:flex;align-items:flex-start;gap:10px;max-width:480px;margin:0 auto;">
+        <div
+          style="width:32px;height:32px;border-radius:8px;background:#fee2e2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <p style="font-size:13px;font-weight:700;color:#991b1b;margin-bottom:2px;">Checked Out by Admin</p>
+          <p id="notif-msg" style="font-size:12px;color:#b91c1c;line-height:1.5;"></p>
+        </div>
+        <button onclick="dismissNotif()" style="background:none;border:none;cursor:pointer;padding:2px;flex-shrink:0;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b91c1c" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="page-area">
+
+      <!-- SCANNER PAGE -->
+      <div id="page-scanner" class="page" style="padding:14px;">
+        <div id="scanner-checked-in" class="hidden">
+          <div class="session-card mb-3">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <p
+                  style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;">
+                  Active Session</p>
+                <p style="font-size:20px;font-weight:700;color:var(--text-1);line-height:1.2;" id="scan-session-room">
+                  Room &mdash;</p>
+                <p style="font-size:13px;color:var(--text-3);margin-top:2px;" id="scan-session-loc"></p>
+              </div>
+              <span
+                style="display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;border:1px solid #bbf7d0;color:var(--green);border-radius:99px;padding:4px 10px;font-size:11px;font-weight:600;flex-shrink:0;">
+                <span class="live-dot"></span>Live
+              </span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-3);margin-bottom:6px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              Checked in at <span id="scan-session-time"
+                style="font-weight:600;color:var(--text-1);margin-left:3px;"></span>
+            </div>
+            <div id="scan-session-note-wrap" class="hidden"
+              style="margin-bottom:14px;background:rgba(37,99,235,.05);border:1px solid #c3d5fd;border-radius:8px;padding:8px 11px;">
+              <p
+                style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:2px;">
+                Note</p>
+              <p id="scan-session-note" style="font-size:12px;color:var(--text-2);line-height:1.5;"></p>
+            </div>
+            <div style="margin-bottom:14px;" id="scan-session-note-spacer" style="display:none;"></div>
+            <button class="btn-danger" id="btn-checkout" onclick="handleCheckOut()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+              </svg>
+              Check Out
+            </button>
+          </div>
+          <div class="panel" style="padding:24px;text-align:center;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5"
+              style="margin:0 auto 10px;display:block;">
+              <rect x="3" y="3" width="5" height="5" />
+              <rect x="16" y="3" width="5" height="5" />
+              <rect x="3" y="16" width="5" height="5" />
+              <path d="M21 16h-3v3M21 21v-1M13 3v3h3M13 10v1M16 10h2M13 13v3M16 13h5v5h-2" />
+            </svg>
+            <p style="font-size:13px;font-weight:500;color:var(--text-3);">Scanner paused</p>
+            <p style="font-size:12px;color:var(--text-4);margin-top:3px;">Check out to scan a new room</p>
+          </div>
+        </div>
+        <div id="scanner-ready">
+          <div class="panel">
+            <div style="padding:12px 14px;display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <p style="font-size:13.5px;font-weight:600;color:var(--text-1);">Scan Room QR</p>
+                <p style="font-size:11.5px;color:var(--text-4);margin-top:1px;">Point camera at the room's QR poster</p>
+              </div>
+              <button id="btn-toggle-scanner" onclick="toggleScanner()" class="btn-ghost">Stop</button>
+            </div>
+            <div id="scanner-wrapper" style="margin:0 12px 12px;max-width:300px;margin-left:auto;margin-right:auto;">
+              <div id="qr-reader"></div>
+            </div>
+            <div id="scan-idle" class="hidden"
+              style="margin:0 12px 12px;background:var(--bg);border:1.5px dashed var(--border);border-radius:10px;padding:28px;text-align:center;">
+              <p style="font-size:13px;color:var(--text-4);">Camera is off</p>
+            </div>
+            <div id="scan-result" class="hidden"
+              style="margin:0 12px 12px;padding:12px;border-radius:8px;font-size:13px;font-weight:600;background:var(--green-lt);border:1px solid #bbf7d0;color:var(--green);">
+            </div>
+            <div id="scan-error" class="hidden"
+              style="margin:0 12px 12px;padding:12px;border-radius:8px;font-size:13px;font-weight:600;background:var(--red-lt);border:1px solid #fecaca;color:var(--red);">
+            </div>
+            <div style="margin:0 12px 12px;">
+              <label
+                style="font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;">Session
+                Note <span style="font-weight:400;color:var(--text-4);">(optional)</span></label>
+              <textarea id="scan-note-input" rows="2" placeholder="e.g. Midterm practical exam, Section A"
+                style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 11px;font-size:13px;font-family:'Inter',sans-serif;color:var(--text-1);resize:none;outline:none;background:var(--surface);line-height:1.5;"
+                onfocus="this.style.borderColor='var(--accent)'"
+                onblur="this.style.borderColor='var(--border)'"></textarea>
+            </div>
+          </div>
+          <div id="scan-start-btn" class="hidden mt-3">
+            <button onclick="startScanner()" class="btn-primary">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="5" height="5" />
+                <rect x="16" y="3" width="5" height="5" />
+                <rect x="3" y="16" width="5" height="5" />
+                <path d="M21 16h-3v3M21 21v-1M13 3v3h3M13 10v1M16 10h2M13 13v3M16 13h5v5h-2" />
+              </svg>
+              Start Camera
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY PAGE -->
+      <div id="page-history" class="page active">
+        <div style="margin-bottom:18px;">
+          <p id="page-greeting"
+            style="font-size:22px;font-weight:700;color:var(--text-1);line-height:1.2;letter-spacing:-.01em;">Hello!</p>
+          <p id="page-date" style="font-size:12px;color:var(--text-4);margin-top:3px;">&mdash;</p>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <p style="font-size:12px;color:var(--text-4);"><span id="hist-total"
+              style="font-weight:700;color:var(--text-1);">&mdash;</span> sessions &nbsp;&middot;&nbsp; avg <span
+              id="hist-avg" style="font-weight:700;color:var(--text-1);">&mdash;</span></p>
+        </div>
+        <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none;">
+          <button class="chip active flex-shrink-0" onclick="setHistFilter('all',this)">All Time</button>
+          <button class="chip flex-shrink-0" onclick="setHistFilter('today',this)">Today</button>
+          <button class="chip flex-shrink-0" onclick="setHistFilter('week',this)">This Week</button>
+          <button class="chip flex-shrink-0" onclick="setHistFilter('month',this)">This Month</button>
+        </div>
+        <div class="panel">
+          <div id="history-list">
+            <div style="display:flex;align-items:center;justify-content:center;padding:40px 0;"><span
+                class="spinner"></span></div>
+          </div>
+          <div id="hist-load-more" class="hidden"
+            style="padding:12px;text-align:center;border-top:1px solid var(--border-2);">
+            <button onclick="loadMoreHistory()" class="btn-ghost">Load More</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROOMS AVAILABILITY PAGE -->
+      <div id="page-rooms" class="page" style="padding:14px;">
+        <div style="margin-bottom:12px;">
+          <p style="font-size:19px;font-weight:700;color:var(--text-1);line-height:1.2;">Available Rooms</p>
+          <p style="font-size:12px;color:var(--text-4);margin-top:2px;">Live availability — updates in real time</p>
+        </div>
+        <!-- floor filter -->
+        <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px;scrollbar-width:none;">
+          <button class="chip active flex-shrink-0" id="rf-all" onclick="setRoomFilter('floor','all',this)">All
+            Floors</button>
+          <button class="chip flex-shrink-0" id="rf-f1" onclick="setRoomFilter('floor','1',this)">Floor 1</button>
+          <button class="chip flex-shrink-0" id="rf-f2" onclick="setRoomFilter('floor','2',this)">Floor 2</button>
+          <button class="chip flex-shrink-0" id="rf-f3" onclick="setRoomFilter('floor','3',this)">Floor 3</button>
+          <button class="chip flex-shrink-0" id="rf-f4" onclick="setRoomFilter('floor','4',this)">Floor 4</button>
+        </div>
+        <!-- type filter -->
+        <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none;">
+          <button class="chip active flex-shrink-0" id="rt-all" onclick="setRoomFilter('type','all',this)">All
+            Types</button>
+          <button class="chip flex-shrink-0" id="rt-comp" onclick="setRoomFilter('type','Computer Lab',this)">Computer
+            Lab</button>
+          <button class="chip flex-shrink-0" id="rt-class"
+            onclick="setRoomFilter('type','Classroom',this)">Classroom</button>
+        </div>
+        <!-- summary pills -->
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <div id="rooms-avail-count"
+            style="display:flex;align-items:center;gap:5px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;color:#16a34a;">
+            <span class="live-dot"></span><span id="rooms-avail-num">-</span> Available
+          </div>
+          <div
+            style="display:flex;align-items:center;gap:5px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;color:#dc2626;">
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="#dc2626">
+              <circle cx="12" cy="12" r="10" />
+            </svg>
+            <span id="rooms-taken-num">-</span> Occupied
+          </div>
+        </div>
+        <div id="rooms-list" class="panel">
+          <div style="display:flex;align-items:center;justify-content:center;padding:40px 0;"><span
+              class="spinner"></span></div>
+        </div>
+      </div>
+
+    </div><!-- /page-area -->
+
+    <nav id="bottom-nav">
+      <button class="bnav-btn active" id="bn-rooms" onclick="switchPage('rooms')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+        </svg>
+        Rooms
+      </button>
+      <button class="bnav-btn" id="bn-scanner" onclick="switchPage('scanner')">
+        <div class="scan-fab">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="5" height="5" />
+            <rect x="16" y="3" width="5" height="5" />
+            <rect x="3" y="16" width="5" height="5" />
+            <path d="M21 16h-3v3M21 21v-1M13 3v3h3M13 10v1M16 10h2M13 13v3M16 13h5v5h-2" />
+          </svg>
+        </div>
+        <span>Scan</span>
+      </button>
+      <button class="bnav-btn" id="bn-account" onclick="switchPage('account')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        Account
+      </button>
+    </nav>
+
+  </div><!-- /app -->
+
+  <!-- ACCOUNT SHEET -->
+  <div id="page-account"
+    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:50;align-items:flex-end;">
+    <div
+      style="background:var(--surface);border-radius:18px 18px 0 0;width:100%;padding:22px 20px;padding-bottom:calc(22px + env(safe-area-inset-bottom));">
+      <div style="width:32px;height:3px;background:#e5e7eb;border-radius:99px;margin:0 auto 20px;"></div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+        <div id="account-avatar"
+          style="width:52px;height:52px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0;">
+          P</div>
+        <div>
+          <p style="font-size:16px;font-weight:700;color:var(--text-1);line-height:1.2;" id="account-name">&mdash;</p>
+          <p style="font-size:12px;color:var(--text-3);margin-top:2px;" id="account-email">&mdash;</p>
+          <span class="badge badge-green" style="margin-top:6px;display:inline-flex;">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Authorized Faculty
+          </span>
+        </div>
+      </div>
+      <div style="border:1px solid var(--border-2);border-radius:10px;overflow:hidden;margin-bottom:16px;">
+        <div
+          style="padding:12px 16px;border-bottom:1px solid var(--border-2);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:13px;color:var(--text-3);">University</span>
+          <span style="font-size:13px;font-weight:600;color:var(--text-1);">New Era University</span>
+        </div>
+        <div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-size:13px;color:var(--text-3);">Portal</span>
+          <span style="font-size:13px;font-weight:600;color:var(--text-1);">ROOMS</span>
+        </div>
+      </div>
+      <!-- History section in account sheet -->
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <p style="font-size:13px;font-weight:700;color:var(--text-2);letter-spacing:.01em;">Session History</p>
+          <div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;">
+            <button class="chip active" id="acct-chip-all" onclick="setHistFilter('all',this)"
+              style="font-size:11px;padding:3px 10px;">All</button>
+            <button class="chip" id="acct-chip-today" onclick="setHistFilter('today',this)"
+              style="font-size:11px;padding:3px 10px;">Today</button>
+            <button class="chip" id="acct-chip-week" onclick="setHistFilter('week',this)"
+              style="font-size:11px;padding:3px 10px;">Week</button>
+            <button class="chip" id="acct-chip-month" onclick="setHistFilter('month',this)"
+              style="font-size:11px;padding:3px 10px;">Month</button>
+          </div>
+        </div>
+        <div class="panel" style="max-height:260px;overflow-y:auto;">
+          <div id="history-list">
+            <div
+              style="display:flex;align-items:center;justify-content:center;padding:32px 0;font-size:13px;color:var(--text-4);">
+              No sessions yet.</div>
+          </div>
+          <div id="hist-load-more" class="hidden"
+            style="padding:10px;text-align:center;border-top:1px solid var(--border-2);">
+            <button onclick="loadMoreHistory()" class="btn-ghost" style="font-size:12px;padding:6px 12px;">Load
+              More</button>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="handleSignOut()" class="btn-danger" style="font-size:13.5px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+        </svg>
+        Sign Out
+      </button>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    ['switchPage', 'handleSignOut', 'handleCheckOut', 'toggleScanner', 'setHistFilter', 'loadMoreHistory', 'loadRoomsAvailability', 'dismissNotif']
+      .forEach(fn => { window[fn] = window[fn] || function () { }; });
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, query, where, orderBy, limit, getDocs, addDoc, updateDoc, doc, getDoc, setDoc, onSnapshot, serverTimestamp }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA3D_bUqXxFuV-_OqDzMmMuwfiT2nTAMlk", authDomain: "midterm-yr3sm2.firebaseapp.com",
+      projectId: "midterm-yr3sm2", storageBucket: "midterm-yr3sm2.firebasestorage.app",
+      messagingSenderId: "995494481225", appId: "1:995494481225:web:8d3909eaf4650a70da1e98"
+    };
+    const _app = initializeApp(firebaseConfig), auth = getAuth(_app), db = getFirestore(_app);
+
+    let currentUser = null, activeLog = null, html5Qr = null, scannerOn = false, scanLocked = false;
+    let allMyLogs = [], histFilter = 'all', histShowing = 20, activeUnsub = null, currentPage = 'rooms';
+    let signingOut = false;
+
+    window.switchPage = async (name) => {
+      const sheet = document.getElementById('page-account');
+      if (name === 'account') { sheet.style.display = 'flex'; document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active')); document.getElementById('bn-account').classList.add('active'); renderHistoryList(); return; }
+      sheet.style.display = 'none';
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('page-' + name).classList.add('active');
+      document.getElementById('bn-' + name).classList.add('active');
+      document.getElementById('page-area').scrollTo({ top: 0, behavior: 'smooth' });
+      if (name !== 'scanner' && scannerOn) await stopScanner();
+      if (name === 'scanner' && !scannerOn && !activeLog) startScanner();
+      if (name === 'rooms') loadRoomsAvailability();
+      currentPage = name;
+    };
+
+    document.getElementById('page-account').addEventListener('click', function (e) {
+      if (e.target !== this) return;
+      this.style.display = 'none';
+      document.getElementById('bn-account').classList.remove('active');
+      document.getElementById('bn-' + currentPage).classList.add('active');
+    });
+
+    async function logAudit(action, details) {
+      if (!currentUser) return;
+      try { await addDoc(collection(db, 'audit_trail'), { actorEmail: currentUser.email, actorName: currentUser.displayName || currentUser.email.split('@')[0], actorRole: 'professor', action, details, timestamp: serverTimestamp() }); }
+      catch (e) { console.warn('logAudit skipped:', e.message); }
+    }
+
+    let authHandled = false;
+    onAuthStateChanged(auth, async user => {
+      if (signingOut) return;
+      if (!user) { window.location.replace('../index.html'); return; }
+      const sk = 'audit_login_' + user.email;
+      const returning = !!sessionStorage.getItem(sk);
+      if (!returning) {
+        sessionStorage.setItem(sk, '1');
+        const wSnap = await getDoc(doc(db, 'whitelist', user.email));
+        if (!wSnap.exists()) { sessionStorage.removeItem(sk); await signOut(auth); window.location.replace('../index.html'); return; }
+        if (!authHandled) { authHandled = true; await logAudit('login', 'Professor session started'); }
+      }
+      // always update lastSeen on every page load so admin sees accurate activity
+      const _lsData = user.displayName ? { displayName: user.displayName, lastSeen: serverTimestamp() } : { lastSeen: serverTimestamp() };
+      try { await setDoc(doc(db, 'whitelist', user.email), _lsData, { merge: true }); } catch (e) { console.error('lastSeen write failed:', e); }
+      currentUser = user;
+      const name = user.displayName || user.email.split('@')[0];
+      if (user.photoURL) { document.getElementById('user-photo').src = user.photoURL; document.getElementById('user-photo').classList.remove('hidden'); document.getElementById('user-avatar').style.display = 'none'; }
+      else { document.getElementById('user-avatar').textContent = name[0].toUpperCase(); }
+      const h = new Date().getHours();
+      const greet = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+      const fn = name.split(' ')[0].replace(/[,;.]+$/, '');
+      document.getElementById('page-greeting').textContent = greet + ', ' + fn + '!';
+      document.getElementById('page-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+      document.getElementById('account-avatar').textContent = name[0].toUpperCase();
+      document.getElementById('account-name').textContent = user.displayName || name;
+      document.getElementById('account-email').textContent = user.email;
+      startActiveSessionListener(); loadAllMyLogs(); switchPage('rooms'); startNotifListener(user.email);
+    });
+
+    window.handleSignOut = async () => {
+      signingOut = true;
+      await logAudit('logout', 'Professor session ended');
+      sessionStorage.removeItem('audit_login_' + (currentUser?.email || ''));
+      if (scannerOn) await stopScanner(); if (activeUnsub) activeUnsub();
+      await signOut(auth); window.location.replace('../index.html');
+    };
+
+    function startActiveSessionListener() {
+      if (activeUnsub) activeUnsub();
+      activeUnsub = onSnapshot(query(collection(db, 'usage_logs'), where('email', '==', currentUser.email), where('status', '==', 'active'), limit(1)), async snap => {
+        const had = !!activeLog;
+        activeLog = snap.empty ? null : { logId: snap.docs[0].id, ...snap.docs[0].data() };
+        if (activeLog) { showActiveSession(); if (scannerOn) await stopScanner(); }
+        else { clearActiveSession(); if (had && currentPage === 'scanner') startScanner(); }
+      });
+    }
+
+    function showActiveSession() {
+      const ci = activeLog.checkIn?.toDate ? activeLog.checkIn.toDate() : new Date();
+      document.getElementById('scanner-checked-in').classList.remove('hidden');
+      document.getElementById('scanner-ready').classList.add('hidden');
+      document.getElementById('scan-session-room').textContent = 'Room ' + (activeLog.roomNumber || '?');
+      document.getElementById('scan-session-loc').textContent = activeLog.location || '';
+      document.getElementById('scan-session-time').textContent = ci.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const noteWrap = document.getElementById('scan-session-note-wrap');
+      if (activeLog.note) { document.getElementById('scan-session-note').textContent = activeLog.note; noteWrap.classList.remove('hidden'); }
+      else { noteWrap.classList.add('hidden'); }
+    }
+    function clearActiveSession() {
+      document.getElementById('scanner-checked-in').classList.add('hidden');
+      document.getElementById('scanner-ready').classList.remove('hidden');
+    }
+
+    window.handleCheckOut = async () => {
+      if (!activeLog) return;
+      const btn = document.getElementById('btn-checkout'); btn.disabled = true;
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Checking out...';
+      try {
+        const co = new Date(), ci = activeLog.checkIn?.toDate ? activeLog.checkIn.toDate() : null, dur = ci ? Math.round((co - ci) / 60000) : null;
+        await updateDoc(doc(db, 'usage_logs', activeLog.logId), { checkOut: serverTimestamp(), status: 'completed' });
+        await logAudit('check_out', 'Checked out of Room ' + (activeLog.roomNumber || activeLog.roomId || '?') + (activeLog.location ? ' · ' + activeLog.location : '') + (dur !== null ? ' — ' + dur + ' min' : ''));
+        showToast('Checked out successfully'); loadAllMyLogs();
+      } catch (e) { showToast('Error: ' + e.message); }
+      finally { btn.disabled = false; btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg> Check Out'; }
+    };
+
+    window.toggleScanner = async () => scannerOn ? stopScanner() : startScanner();
+
+    async function startScanner() {
+
+      const wrapper = document.getElementById('scanner-wrapper'), idle = document.getElementById('scan-idle'), fb = document.getElementById('scan-start-btn'), btn = document.getElementById('btn-toggle-scanner');
+
+      wrapper.classList.remove('hidden'); idle?.classList.add('hidden'); fb?.classList.add('hidden');
+
+      document.getElementById('scan-result').classList.add('hidden'); document.getElementById('scan-error').classList.add('hidden');
+
+      if (btn) btn.textContent = 'Stop';
+
+      html5Qr = new Html5Qrcode('qr-reader');
+
+      try {
+
+        await html5Qr.start(
+
+          { facingMode: 'environment' },
+
+          {
+
+            fps: 20,
+
+            qrbox: (w, h) => { const s = Math.min(w, h) * 0.75 | 0; return { width: s, height: s }; },
+
+            aspectRatio: 1.777,
+
+            disableFlip: false,
+
+            experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+
+          },
+
+          onScanSuccess, () => { }
+
+        );
+
+        scannerOn = true;
+
+      } catch (err) {
+
+        wrapper.classList.add('hidden'); idle?.classList.remove('hidden'); fb?.classList.remove('hidden');
+
+        if (btn) btn.textContent = 'Start'; showScanError('Camera unavailable. Tap "Start Camera" to retry.');
+
+      }
+
+    }
+
+
+
+    async function stopScanner() {
+
+      if (html5Qr && scannerOn) { await html5Qr.stop().catch(() => { }); html5Qr = null; }
+
+      scannerOn = false;
+
+      document.getElementById('scanner-wrapper').classList.add('hidden');
+
+      document.getElementById('scan-idle')?.classList.remove('hidden');
+
+      const btn = document.getElementById('btn-toggle-scanner'); if (btn) btn.textContent = 'Start';
+
+    }
+
+
+
+    async function onScanSuccess(decodedText) {
+
+      if (scanLocked) return; scanLocked = true;
+
+      const roomId = decodedText.trim();
+
+      if (activeLog) { showScanError('You have an active session. Check out first.'); setTimeout(() => { scanLocked = false; }, 3000); return; }
+
+      await stopScanner();
+
+      let roomData = { roomNumber: roomId, location: '' };
+
+      try { const rs = await getDoc(doc(db, 'rooms', roomId)); if (rs.exists()) roomData = rs.data(); } catch (_) { }
+
+      try {
+
+        const _note = (document.getElementById('scan-note-input')?.value || '').trim();
+
+        await addDoc(collection(db, 'usage_logs'), { email: currentUser.email, professorName: currentUser.displayName || currentUser.email, roomId, roomNumber: roomData.roomNumber || roomId, location: roomData.location || '', note: _note || null, checkIn: serverTimestamp(), checkOut: null, status: 'active' });
+
+        if (document.getElementById('scan-note-input')) document.getElementById('scan-note-input').value = '';
+
+        await logAudit('check_in', 'Checked into Room ' + (roomData.roomNumber || roomId) + (roomData.location ? ' · ' + roomData.location : '') + ' (ID: ' + roomId + ')');
+
+        showScanResult('Checked into Room ' + (roomData.roomNumber || roomId)); loadAllMyLogs();
+
+      } catch (e) { showScanError('Failed: ' + e.message); }
+
+      setTimeout(() => { scanLocked = false; }, 3000);
+
+    }
+    function showScanResult(msg) { document.getElementById('scan-result').textContent = msg; document.getElementById('scan-result').classList.remove('hidden'); document.getElementById('scan-error').classList.add('hidden'); }
+
+    function showScanError(msg) { document.getElementById('scan-error').textContent = msg; document.getElementById('scan-error').classList.remove('hidden'); document.getElementById('scan-result').classList.add('hidden'); }
+    let _logsUnsub = null;
+    function loadAllMyLogs() {
+      if (_logsUnsub) { _logsUnsub(); _logsUnsub = null; }
+      _logsUnsub = onSnapshot(
+        query(collection(db, 'usage_logs'), where('email', '==', currentUser.email)),
+        snap => {
+          allMyLogs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => { const ta = a.checkIn?.toDate ? a.checkIn.toDate() : new Date(0), tb = b.checkIn?.toDate ? b.checkIn.toDate() : new Date(0); return tb - ta; });
+          computeStats(); renderHistoryList();
+        },
+        _e => { }
+      );
+    }
+
+    function computeStats() {
+      let total = allMyLogs.length, sum = 0, cnt = 0;
+      allMyLogs.forEach(r => { const ci = r.checkIn?.toDate ? r.checkIn.toDate() : null, co = r.checkOut?.toDate ? r.checkOut.toDate() : null; if (ci && co) { sum += (co - ci) / 60000; cnt++; } });
+      const a = document.getElementById('hist-avg'), t = document.getElementById('hist-total');
+      if (a) a.textContent = cnt ? Math.round(sum / cnt) + 'm' : '—'; if (t) t.textContent = total;
+    }
+
+    window.setHistFilter = (f, el) => {
+      histFilter = f; histShowing = 20;
+      ['acct-chip-all', 'acct-chip-today', 'acct-chip-week', 'acct-chip-month'].forEach(id => {
+        const b = document.getElementById(id); if (b) b.classList.remove('active');
+      });
+      el.classList.add('active');
+      renderHistoryList();
+    };
+
+    function getFilteredLogs() {
+      const now = new Date(); let from = null;
+      if (histFilter === 'today') { from = new Date(now); from.setHours(0, 0, 0, 0); }
+      else if (histFilter === 'week') { from = new Date(now); from.setDate(now.getDate() - now.getDay()); from.setHours(0, 0, 0, 0); }
+      else if (histFilter === 'month') { from = new Date(now.getFullYear(), now.getMonth(), 1); }
+      return from ? allMyLogs.filter(r => { const ci = r.checkIn?.toDate ? r.checkIn.toDate() : null; return ci && ci >= from; }) : allMyLogs;
+    }
+
+    function renderHistoryList() {
+      const logs = getFilteredLogs(), show = logs.slice(0, histShowing);
+      const cont = document.getElementById('history-list'), more = document.getElementById('hist-load-more');
+      if (!show.length) { cont.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;padding:36px;font-size:13px;color:var(--text-4);">No sessions in this period.</div>'; more.classList.add('hidden'); return; }
+      cont.innerHTML = show.map(r => logRowHTML(r)).join('');
+      more.classList.toggle('hidden', logs.length <= histShowing);
+    }
+
+    window.loadMoreHistory = () => { histShowing += 20; renderHistoryList(); };
+
+    function logRowHTML(r) {
+      const ci = r.checkIn?.toDate ? r.checkIn.toDate() : null, co = r.checkOut?.toDate ? r.checkOut.toDate() : null;
+      const dur = (ci && co) ? Math.round((co - ci) / 60000) + ' min' : r.status === 'active' ? 'Ongoing' : '—';
+      const time = ci ? ci.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—';
+      const date = ci ? ci.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' }) : '';
+      const badge = r.status === 'active'
+        ? '<span class="badge badge-green"><svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>Active</span>'
+        : '<span class="badge badge-gray">Done</span>';
+      return '<div class="log-row"><div style="min-width:0;flex:1;margin-right:12px;">' +
+        '<p style="font-size:13.5px;font-weight:600;color:var(--text-1);line-height:1.3;">Room ' + (r.roomNumber || r.roomId) + '</p>' +
+        (r.location ? '<p style="font-size:12px;color:var(--text-4);margin-top:1px;">' + r.location + '</p>' : '') +
+        '<p style="font-size:11.5px;color:var(--text-4);margin-top:3px;">' + date + (date && time ? ' · ' : '') + time + ' &middot; ' + dur + '</p>' +
+        '</div>' + badge + '</div>';
+    }
+
+    let _roomsUnsub = null;
+    let _roomFloorFilter = 'all', _roomTypeFilter = 'all';
+
+    window.setRoomFilter = (kind, val, el) => {
+      if (kind === 'floor') {
+        _roomFloorFilter = val;
+        ['rf-all', 'rf-f1', 'rf-f2', 'rf-f3', 'rf-f4'].forEach(id => { const b = document.getElementById(id); if (b) b.classList.remove('active'); });
+      } else {
+        _roomTypeFilter = val;
+        ['rt-all', 'rt-comp', 'rt-class'].forEach(id => { const b = document.getElementById(id); if (b) b.classList.remove('active'); });
+      }
+      el.classList.add('active');
+      window._roomsRender && window._roomsRender();
+    };
+
+    window.loadRoomsAvailability = () => {
+      const cont = document.getElementById('rooms-list');
+      if (_roomsUnsub) { _roomsUnsub(); _roomsUnsub = null; }
+
+      const roomsRef = collection(db, 'rooms');
+      const logsRef = collection(db, 'usage_logs');
+      let allRooms = [], activeSessions = {};
+
+      const render = window._roomsRender = () => {
+        // apply filters
+        let filtered = allRooms.filter(r => {
+          if (_roomFloorFilter !== 'all') {
+            const num = parseInt((r.data.roomNumber || r.id).toString().replace(/\D/g, ''));
+            const floor = Math.floor(num / 100);
+            if (floor.toString() !== _roomFloorFilter) return false;
+          }
+          if (_roomTypeFilter !== 'all') {
+            if ((r.data.roomType || '') !== _roomTypeFilter) return false;
+          }
+          return true;
+        });
+
+        if (!allRooms.length) {
+          cont.innerHTML = '<div style="text-align:center;padding:36px;font-size:13px;color:var(--text-4);">No rooms registered yet.</div>';
+          document.getElementById('rooms-avail-num').textContent = '0';
+          document.getElementById('rooms-taken-num').textContent = '0';
+          return;
+        }
+
+        const available = allRooms.filter(r => !activeSessions[r.id]);
+        const occupied = allRooms.filter(r => !!activeSessions[r.id]);
+        document.getElementById('rooms-avail-num').textContent = available.length;
+        document.getElementById('rooms-taken-num').textContent = occupied.length;
+
+        if (!filtered.length) {
+          cont.innerHTML = '<div style="text-align:center;padding:36px;font-size:13px;color:var(--text-4);">No rooms match this filter.</div>';
+          return;
+        }
+
+        const sorted = [...filtered.filter(r => !activeSessions[r.id]), ...filtered.filter(r => !!activeSessions[r.id])];
+        cont.innerHTML = sorted.map(r => {
+          const sess = activeSessions[r.id];
+          const isOcc = !!sess;
+          const since = sess?.checkIn?.toDate ? sess.checkIn.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+          const occupant = sess?.professorName || (sess?.email ? sess.email.split('@')[0] : '');
+          const note = sess?.note || '';
+          const rtype = r.data.roomType ? '<span style="font-size:10px;font-weight:600;background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;border-radius:4px;padding:1px 6px;margin-left:4px;">' + r.data.roomType + '</span>' : '';
+          return '<div style="padding:14px 16px;border-bottom:1px solid var(--border-2);">' +
+            '<div style="display:flex;align-items:center;gap:12px;">' +
+            '<div style="width:42px;height:42px;border-radius:10px;background:' + (isOcc ? '#fef2f2' : '#f0fdf4') + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;">' +
+            '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="' + (isOcc ? '#dc2626' : '#16a34a') + '" stroke-width="2"><rect x="3" y="3" width="5" height="5"/><rect x="16" y="3" width="5" height="5"/><rect x="3" y="16" width="5" height="5"/><path d="M21 16h-3v3M21 21v-1M13 3v3h3M13 10v1M16 10h2M13 13v3M16 13h5v5h-2"/></svg>' +
+            '</div>' +
+            '<div style="flex:1;min-width:0;">' +
+            '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:2px;">' +
+            '<p style="font-size:14px;font-weight:700;color:var(--text-1);">Room ' + (r.data.roomNumber || r.id) + '</p>' + rtype +
+            '</div>' +
+            (r.data.location ? '<p style="font-size:11.5px;color:var(--text-4);margin-top:1px;">' + r.data.location + '</p>' : '') +
+            (isOcc && occupant ? '<p style="font-size:11.5px;color:var(--text-2);margin-top:3px;font-weight:500;">&#128100; ' + occupant + (since ? ' &middot; since ' + since : '') + '</p>' : '') +
+            (isOcc && note ? '<p style="font-size:11px;color:#6b7280;margin-top:2px;font-style:italic;">&ldquo;' + note + '&rdquo;</p>' : '') +
+            '</div>' +
+            '<span style="display:inline-flex;align-items:center;gap:5px;border-radius:8px;padding:4px 10px;font-size:11.5px;font-weight:700;flex-shrink:0;' +
+            (isOcc ? 'background:#fef2f2;color:#dc2626;border:1px solid #fecaca;' : 'background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;') + '">' +
+            '<svg width="7" height="7" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>' +
+            (isOcc ? 'Occupied' : 'Available') +
+            '</span>' +
+            '</div>' +
+            '</div>';
+        }).join('') + '<div style="height:1px;"></div>';
+      };
+
+      getDocs(roomsRef).then(snap => {
+        allRooms = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+        render();
+      });
+
+      _roomsUnsub = onSnapshot(
+        query(logsRef, where('status', '==', 'active')),
+        snap => {
+          activeSessions = {};
+          snap.docs.forEach(d => { const r = d.data(); if (r.roomId) activeSessions[r.roomId] = r; });
+          render();
+        },
+        _err => { render(); }
+      );
+    };
+
+    /* -- Notifications -- */
+    let _notifUnsub = null;
+    function startNotifListener(email) {
+      if (_notifUnsub) { _notifUnsub(); _notifUnsub = null; }
+      _notifUnsub = onSnapshot(
+        query(collection(db, 'notifications'), where('toEmail', '==', email), where('read', '==', false)),
+        async snap => {
+          if (snap.empty) { document.getElementById('notif-banner').style.display = 'none'; return; }
+          // show latest unread
+          const latest = snap.docs.sort((a, b) => {
+            const ta = a.data().createdAt?.toDate ? a.data().createdAt.toDate() : new Date(0);
+            const tb = b.data().createdAt?.toDate ? b.data().createdAt.toDate() : new Date(0);
+            return tb - ta;
+          })[0];
+          const n = latest.data();
+          document.getElementById('notif-msg').textContent = n.message || ('You were checked out of Room ' + n.room + ' by ' + n.adminName + '.');
+          document.getElementById('notif-banner').style.display = 'flex';
+          // also reload logs since session was ended
+          loadAllMyLogs();
+          // mark all as read after 5s
+          setTimeout(async () => {
+            await Promise.all(snap.docs.map(d => updateDoc(doc(db, 'notifications', d.id), { read: true }).catch(() => { })));
+          }, 5000);
+        }
+      );
+    }
+
+    window.dismissNotif = async () => {
+      document.getElementById('notif-banner').style.display = 'none';
+      // mark all notifications read immediately
+      if (!currentUser) return;
+      const snap = await getDocs(query(collection(db, 'notifications'), where('toEmail', '==', currentUser.email), where('read', '==', false)));
+      await Promise.all(snap.docs.map(d => updateDoc(doc(db, 'notifications', d.id), { read: true }).catch(() => { })));
+    };
+
+    function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000); }
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        // Adjust path if calling from inside the /pages/ folder
+        const swPath = window.location.pathname.includes('/pages/') ? '../sw.js' : './sw.js';
+        navigator.serviceWorker.register(swPath)
+          .then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }, err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+      });
+    }
+  </script>
+</body>
+
+</html>
