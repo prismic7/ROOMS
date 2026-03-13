@@ -47,10 +47,56 @@ A mobile-responsive QR check-in and attendance system for New Era University fac
 
 ## [Setup & Deployment]
 
-### 1. Firebase Project
-1. Create a project at the [Firebase Console](https://console.firebase.google.com).
-2. Enable **Google Authentication** and restrict to `neu.edu.ph`.
-3. Create a **Firestore Database** in production mode.
+### 1. Configuration
+Update `js/firebase-config.js` with your project credentials. **Important:** Never share your actual API keys in public repositories.
 
-### 2. Configuration
-Update `js/firebase-config.js` with your project credentials
+```js
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID",
+  measurementId: "YOUR_MEASUREMENT_ID"
+};
+```
+
+### 2. Security Rules & Deployment
+Deploy the database rules and the web app using Firebase CLI:
+
+```bash
+firebase deploy --only firestore:rules
+firebase deploy --only hosting
+```
+---
+
+## [Project Structure]
+
+```plaintext
+neu-lab-log/
+├── index.html              ← Login page (Root)
+├── pages/
+│   ├── dashboard.html      ← Faculty mobile dashboard
+│   └── admin.html          ← Admin web dashboard
+├── js/
+│   └── firebase-config.js  ← Firebase Initialization
+├── manifest.json           ← PWA Configuration
+├── sw.js                   ← Service Worker for mobile use
+├── firebase.json           ← Hosting & Redirect rules
+└── firestore.rules         ← Security protocols
+```
+
+---
+
+## [Author]
+
+**Frinz Hughwie D. Bautista** Bachelor of Science in Computer Science  
+New Era University  
+
+---
+
+## 📄 License
+
+This project was developed as an academic requirement.  
+© 2026 New Era University — All rights reserved.
