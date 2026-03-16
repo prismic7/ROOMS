@@ -9,6 +9,18 @@ A mobile-responsive QR check-in and attendance system for New Era University fac
 > https://midterm-yr3sm2.web.app (Reach out for whitelist.)
 
 ---
+### Flow of App:
+● Admin generates and prints out QR for all the rooms.
+● Admin whitelists Professor. //Admin needs to whitelist faculty to prevent students from
+logging in the app using their institute email.
+● Professor logs in the app using their institute email.
+● Professor scans the QR of a room using the app’s scanner.
+● Professor officially reserves the room. //Other faculty using the app will see that the room
+is already occupied by the user.
+● Professor can log out of the room after usage.
+● Admin has an audit log in their dashboard for usage monitoring.
+
+---
 
 ## [Features]
 
